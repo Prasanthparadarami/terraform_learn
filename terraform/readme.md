@@ -1,4 +1,4 @@
-# Terraform 
+# Terraform
 
 ## Projects
 - Provision EC2 based HTTP Servers with Load Balancer
