@@ -1,0 +1,61 @@
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.85.0
+    hooks:
+      - id: terraform_fmt
+        name: Terraform Format
+        description: Format Terraform files
+        entry: terraform fmt -recursive
+        language: system
+        files: (\.tf|\.tfvars)$
+        exclude: ^terraform/.*\.lock\.hcl$
+      
+      - id: terraform_validate
+        name: Terraform Validate
+        description: Validate Terraform configuration
+        entry: bash -c 'cd "$1/.." && terraform init -backend=false && terraform validate' --
+        language: system
+        files: (\.tf)$
+        exclude: ^terraform/.*\.lock\.hcl$
+        require_serial: true
+
+      - id: terraform_docs
+        name: Terraform Docs
+        description: Generate Terraform documentation
+        entry: terraform-docs markdown directory --sort-by-required --output-file README.md
+        language: system
+        files: (\.tf)$
+        pass_filenames: false
+        require_serial: true
+
+      - id: tflint
+        name: TFLint
+        description: Lint Terraform files
+        entry: tflint --format compact
+        language: system
+        files: (\.tf)$
+        exclude: ^\.terraform/.*
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^terraform/.*
+      - id: end-of-file-fixer
+        exclude: ^terraform/.*
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: detect-private-key
+
+  - repo: https://github.com/gruntwork-io/pre-commit
+    rev: v0.1.23
+    hooks:
+      - id: shellcheck
+        name: ShellCheck
+        description: Check shell scripts for errors
+        entry: shellcheck
+        language: system
+        types: [shell]
+        exclude: ^terraform/.*

@@ -1,0 +1,34 @@
+# Terraform Variables Template
+# Copy this file to terraform.tfvars and fill in your actual values
+# This file is NOT committed to version control (see .gitignore)
+
+# AWS Configuration
+aws_region = "us-east-1"
+aws_profile = "default"
+
+# Common Tags
+common_tags = {
+  Environment = "dev"
+  Project     = "terraform-learn"
+  ManagedBy   = "Terraform"
+}
+
+# EC2 Configuration (if using EC2 modules)
+# instance_type = "t2.micro"
+# instance_count = 1
+# environment = "dev"
+
+# Database Configuration (if using RDS)
+# db_instance_class = "db.t3.micro"
+# db_allocated_storage = 20
+# db_name = "mydb"
+# db_username = "admin"
+# db_password = "CHANGE_ME"
+
+# VPC Configuration (if using VPC)
+# vpc_cidr = "10.0.0.0/16"
+# enable_nat_gateway = false
+# enable_vpn_gateway = false
+
+# Add your custom variables below
+# example_variable = "value"
