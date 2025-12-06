@@ -1,0 +1,31 @@
+name: Delete testing branches after merged PR
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-testing-branch:
+    # only run when PR was merged and branch name starts with testing/
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'testing/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete head branch using GitHub API
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            const ref = `heads/${branch}`;
+            core.info(`Deleting branch: ${branch}`);
+            try {
+              await github.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref
+              });
+              core.info(`Deleted branch: ${branch}`);
+            } catch (err) {
+              core.warning(`Failed to delete branch ${branch}: ${err.message}`);
+            }
