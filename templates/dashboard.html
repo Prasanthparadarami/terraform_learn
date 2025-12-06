@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - User OAuth App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .navbar {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            font-size: 18px;
+            color: #667eea;
+        }
+        .navbar a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .card-row:last-child {
+            border-bottom: none;
+        }
+        .card-label {
+            color: #999;
+            font-weight: 500;
+        }
+        .card-value {
+            color: #333;
+            font-weight: 500;
+        }
+        .auth-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background: #f5f5f5;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #e0e0e0;
+            font-weight: 600;
+            color: #666;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .status-active {
+            color: #4caf50;
+            font-weight: 500;
+        }
+        .status-inactive {
+            color: #f44336;
+            font-weight: 500;
+        }
+        .timestamp {
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>📊 Dashboard</h1>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="grid">
+            <!-- User Profile Card -->
+            <div class="card">
+                <h2>👤 Profile Information</h2>
+                <div class="card-row">
+                    <span class="card-label">Name:</span>
+                    <span class="card-value">{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Email:</span>
+                    <span class="card-value">{{ user.email }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Username:</span>
+                    <span class="card-value">{{ user.username }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Role:</span>
+                    <span class="card-value">{{ user.role }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Status:</span>
+                    <span class="card-value">
+                        <span class="status-active">✓ {{ user.status }}</span>
+                    </span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Member Since:</span>
+                    <span class="card-value timestamp">{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Last Login:</span>
+                    <span class="card-value timestamp">
+                        {% if user.last_login %}
+                            {{ user.last_login.strftime('%B %d, %Y at %H:%M') }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Profile Details Card -->
+            {% if profile %}
+            <div class="card">
+                <h2>🏢 Extended Profile</h2>
+                <div class="card-row">
+                    <span class="card-label">Company:</span>
+                    <span class="card-value">{{ profile.company or 'Not set' }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Job Title:</span>
+                    <span class="card-value">{{ profile.job_title or 'Not set' }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Country:</span>
+                    <span class="card-value">{{ profile.country or 'Not set' }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">City:</span>
+                    <span class="card-value">{{ profile.city or 'Not set' }}</span>
+                </div>
+                <div class="card-row">
+                    <span class="card-label">Timezone:</span>
+                    <span class="card-value">{{ profile.timezone or 'Not set' }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Authentications Card -->
+            <div class="card">
+                <h2>🔐 Connected Accounts</h2>
+                {% if auths %}
+                    {% for auth in auths %}
+                    <div class="card-row">
+                        <span class="card-label">
+                            <span class="auth-badge">{{ auth.auth_provider }}</span>
+                        </span>
+                        <span class="card-value">{{ auth.provider_email or auth.provider_username }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #999; font-size: 13px;">No connected accounts</p>
+                {% endif %}
+            </div>
+
+            <!-- Active Sessions Card -->
+            <div class="card">
+                <h2>📱 Active Sessions</h2>
+                {% if sessions %}
+                    <p style="font-size: 13px; color: #666; margin-bottom: 10px;">
+                        <strong>{{ sessions|length }}</strong> active session(s)
+                    </p>
+                    {% for sess in sessions %}
+                    <div class="card-row">
+                        <span class="card-label">Device:</span>
+                        <span class="card-value">{{ sess.device_name or sess.device_type or 'Unknown' }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #999; font-size: 13px;">No active sessions</p>
+                {% endif %}
+            </div>
+
+            <!-- Login History Table -->
+            <div class="card full-width">
+                <h2>📋 Recent Login History</h2>
+                {% if login_history %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Method</th>
+                            <th>IP Address</th>
+                            <th>Browser</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for login in login_history %}
+                        <tr>
+                            <td>
+                                {% if login.login_successful %}
+                                    <span class="status-active">✓ Success</span>
+                                {% else %}
+                                    <span class="status-inactive">✗ Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ login.login_method }}</td>
+                            <td class="timestamp">{{ login.ip_address or 'Unknown' }}</td>
+                            <td class="timestamp">{{ login.browser_name or 'Unknown' }}</td>
+                            <td class="timestamp">{{ login.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: #999; font-size: 13px;">No login history available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
