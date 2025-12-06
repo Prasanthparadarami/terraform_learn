@@ -8,11 +8,26 @@
 # dependencies
 node_modules
 
-# terraform excludes
+# Terraform files
 *.tfstate
 *.tfstate.backup
-.terraform
-*.terraform.lock.hcl
+*.tfstate.*.backup
+.terraform/
+.terraform.lock.hcl
+.tfvars
+.tfvars.json
+!terraform.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+.terraform/modules/
+*.tftpl
+*.tfplan
 
 # IDEs and editors
 /.idea
