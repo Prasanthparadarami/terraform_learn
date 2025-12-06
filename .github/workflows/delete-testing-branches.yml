@@ -1,31 +1,48 @@
-name: Delete testing branches after merged PR
+name: Delete branches after merged PR (configurable prefixes)
 
 on:
   pull_request:
     types: [closed]
 
 jobs:
-  delete-testing-branch:
-    # only run when PR was merged and branch name starts with testing/
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'testing/')
+  delete-merged-branch:
+    # only run when PR was merged
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    env:
+      # Comma-separated list of prefixes; set `BRANCH_PREFIXES` secret to override.
+      # If not set, the script will default to 'testing/'.
+      BRANCH_PREFIXES: ${{ secrets.BRANCH_PREFIXES }}
 
     steps:
-      - name: Delete head branch using GitHub API
+      - name: Delete head branch using GitHub API (configurable prefixes)
         uses: actions/github-script@v6
         with:
+          # Use GITHUB_TOKEN by default; you can override with a PAT in secrets if needed
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const prefixes = (process.env.BRANCH_PREFIXES || 'testing/').split(',').map(p=>p.trim()).filter(Boolean);
             const branch = context.payload.pull_request.head.ref;
+            core.info(`PR merged for branch: ${branch}`);
+
+            if (!prefixes.some(p => branch.startsWith(p))) {
+              core.info(`Branch '${branch}' does not match configured prefixes: ${prefixes.join(', ')}`);
+              return;
+            }
+
             const ref = `heads/${branch}`;
-            core.info(`Deleting branch: ${branch}`);
+            core.info(`Attempting to delete ref: ${ref}`);
             try {
-              await github.git.deleteRef({
+              // delete the branch ref via REST API
+              await github.rest.git.deleteRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref
               });
               core.info(`Deleted branch: ${branch}`);
             } catch (err) {
-              core.warning(`Failed to delete branch ${branch}: ${err.message}`);
+              // handle common cases gracefully
+              // protected branch or insufficient permissions will be caught here
+              core.warning(`Failed to delete branch ${branch}: ${err && err.message ? err.message : err}`);
             }
+
